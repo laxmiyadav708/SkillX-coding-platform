@@ -5,13 +5,14 @@ import os
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECRET KEY — always from environment in production
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-secret-key-change-in-production")
+# 🔐 SECRET KEY (from Render env)
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-# DEBUG MODE — set to False in production via env var
-DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
+# 🚀 DEBUG (False in production)
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+# 🌐 ALLOWED HOSTS
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
 
 # APPLICATIONS
@@ -45,24 +46,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'skillx_backend.urls'
 
-
-# TEMPLATES
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-
 WSGI_APPLICATION = 'skillx_backend.wsgi.application'
 
 
@@ -84,11 +67,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# CORS SETTINGS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-CORS_ALLOW_CREDENTIALS = True
+# 🌍 CORS (IMPORTANT FOR VERCEL)
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # DJANGO REST FRAMEWORK
@@ -96,12 +76,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    # Default: require authentication on all endpoints
-    # Public endpoints (home, signup, login) use @permission_classes([AllowAny])
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    # Rate limiting
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -113,9 +90,9 @@ REST_FRAMEWORK = {
 }
 
 
-# JWT SETTINGS
+# 🔐 JWT SETTINGS
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # increased
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -132,16 +109,16 @@ USE_TZ = True
 
 # STATIC FILES
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # DEFAULT PRIMARY KEY FIELD TYPE
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# ─── SECURITY SETTINGS ─── #
+# 🔒 SECURITY SETTINGS
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-SECURE_BROWSER_XSS_FILTER = True
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 SECURE_REFERRER_POLICY = "same-origin"
