@@ -38,29 +38,45 @@ def home(request):
 @permission_classes([AllowAny])
 def signup(request):
     try:
-        first_name = request.data.get("first_name", "").strip()
-        last_name  = request.data.get("last_name", "").strip()
-        email      = request.data.get("email", "").strip()
-        password   = request.data.get("password", "")
+        data = request.data
 
-        # Generate username from email if not provided
-        username = request.data.get("username", "").strip()
+        first_name = data.get("first_name", "").strip()
+        last_name  = data.get("last_name", "").strip()
+        email      = data.get("email", "").strip()
+        password   = data.get("password", "")
+
+        # SAFE username generation
+        username = data.get("username")
         if not username:
+            if not email:
+                return Response({"error": "Email required"}, status=400)
             username = email.split("@")[0]
 
+        # VALIDATION
         if not email or not password:
             return Response({"error": "Email and password required"}, status=400)
 
+        # SAFE VALIDATORS (IMPORTANT)
         try:
             username = sanitize_username(username)
-            email    = sanitize_email(email)
-            validate_password_strength(password)
-        except ValueError as e:
+        except Exception:
+            username = email.split("@")[0]  # fallback
+
+        try:
+            email = sanitize_email(email)
+        except Exception as e:
             return Response({"error": str(e)}, status=400)
 
+        try:
+            validate_password_strength(password)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+        # CHECK EXISTING
         if User.objects.filter(username=username).exists():
             return Response({"error": "Username already exists"}, status=400)
 
+        # CREATE USER
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -76,12 +92,12 @@ def signup(request):
             "token": tokens["access"],
             "refresh": tokens["refresh"],
             "username": user.username,
-        })
+        }, status=201)
 
     except Exception as e:
-        print("Signup Error:", str(e))  # shows in Render logs
+        print("🔥 SIGNUP CRASH:", str(e))  # VERY IMPORTANT
         return Response({"error": str(e)}, status=500)
-
+    
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
