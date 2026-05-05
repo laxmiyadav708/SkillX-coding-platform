@@ -37,34 +37,50 @@ def home(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
-    username = request.data.get("username", "").strip()
-    email    = request.data.get("email", "").strip()
-    password = request.data.get("password", "")
-
-    if not username or not email or not password:
-        return Response({"error": "All fields required"}, status=400)
-
-    # FIX: validators raised ValueError but were never caught → 500 crash
     try:
-        username = sanitize_username(username)
-        email    = sanitize_email(email)
-        validate_password_strength(password)
-    except ValueError as e:
-        return Response({"error": str(e)}, status=400)
+        first_name = request.data.get("first_name", "").strip()
+        last_name  = request.data.get("last_name", "").strip()
+        email      = request.data.get("email", "").strip()
+        password   = request.data.get("password", "")
 
-    if User.objects.filter(username=username).exists():
-        return Response({"error": "Username taken"}, status=400)
+        # Generate username from email if not provided
+        username = request.data.get("username", "").strip()
+        if not username:
+            username = email.split("@")[0]
 
-    user   = User.objects.create_user(username=username, email=email, password=password)
-    tokens = get_tokens(user)
+        if not email or not password:
+            return Response({"error": "Email and password required"}, status=400)
 
-    return Response({
-        "message":  "Account created",
-        "token":    tokens["access"],
-        "refresh":  tokens["refresh"],
-        "username": user.username,
-    })
+        try:
+            username = sanitize_username(username)
+            email    = sanitize_email(email)
+            validate_password_strength(password)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=400)
 
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username already exists"}, status=400)
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        tokens = get_tokens(user)
+
+        return Response({
+            "message": "Account created",
+            "token": tokens["access"],
+            "refresh": tokens["refresh"],
+            "username": user.username,
+        })
+
+    except Exception as e:
+        print("Signup Error:", str(e))  # shows in Render logs
+        return Response({"error": str(e)}, status=500)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
