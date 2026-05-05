@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { ToastContext } from "../components/shared.jsx";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const AuthPage = ({ mode, onNav, onAuth }) => {
   const toast = useContext(ToastContext);
