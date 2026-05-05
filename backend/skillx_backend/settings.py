@@ -5,13 +5,13 @@ import os
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 🔐 SECRET KEY (from Render env)
+# SECRET KEY
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-# 🚀 DEBUG (False in production)
+# DEBUG
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# 🌐 ALLOWED HOSTS
+# ALLOWED HOSTS
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
 
@@ -33,7 +33,7 @@ INSTALLED_APPS = [
 
 # MIDDLEWARE
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # must be FIRST
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,6 +47,24 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'skillx_backend.urls'
 
 WSGI_APPLICATION = 'skillx_backend.wsgi.application'
+
+
+# ✅ 🔥 FIXED TEMPLATES (IMPORTANT)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 
 # DATABASE
@@ -67,7 +85,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# 🌍 CORS (IMPORTANT FOR VERCEL)
+# CORS
 CORS_ALLOW_ALL_ORIGINS = True
 
 
@@ -90,9 +108,9 @@ REST_FRAMEWORK = {
 }
 
 
-# 🔐 JWT SETTINGS
+# JWT SETTINGS
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # increased
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -116,7 +134,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# 🔒 SECURITY SETTINGS
+# SECURITY
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SESSION_COOKIE_HTTPONLY = True
