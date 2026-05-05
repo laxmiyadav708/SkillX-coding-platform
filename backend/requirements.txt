@@ -8,4 +8,5 @@ sqlparse
 tzdata
 PyJWT
 gunicorn
+requests
 
